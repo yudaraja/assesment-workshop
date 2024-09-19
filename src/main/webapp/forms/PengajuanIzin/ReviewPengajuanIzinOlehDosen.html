@@ -1,0 +1,56 @@
+<form action="">
+    <h3>Form Pengajuan Izin</h3>
+
+    <div class="form-group">
+        <label>Jenis Izin</label>
+        <select cam-variable-name="category" cam-variable-type="String" class="form-control" readonly>
+            <option value="Keperluan Pribadi">Keperluan Pribadi</option>
+            <option value="Sakit">Sakit</option>
+            <option value="Tanggal Izin">Tanggal Izin</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Tanggal Izin</label>
+        <p class="input-group">
+            <input type="text"
+                   cam-variable-name="date"
+                   cam-variable-type="String"
+                   class="form-control"
+                   uib-datepicker-popup="yyyy-MM-dd"
+                   is-open="dateFieldOpened"
+                   readonly
+            />
+        </p>
+    </div>
+
+    <div class="form-group">
+        <label>Deskripsi</label>
+        <textarea cam-variable-name="description"
+                  cam-variable-type="String" class="form-control" readonly></textarea>
+    </div>
+
+    <div class="form-group" style="display: flex; flex-flow: column">
+        <label>Bukti Pendukung</label>
+        <!-- Image display -->
+        <img style="width: 500px; height: 350px"
+             src="{{ camForm.variableManager.variable('evidence').contentUrl }}"
+             alt="Bukti Pendukung" />
+        <a class="form-control" cam-file-download="evidence">Download Bukti Pendukung</a>
+    </div>
+
+    <div class="form-group">
+        <label>Apakah Pengajuan Izin Disetujui?</label>
+        <select cam-variable-name="isApproved" cam-variable-type="String" class="form-control">
+            <option value="Setuju">Setuju</option>
+            <option value="Tolak">Tolak</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Catatan</label>
+        <textarea cam-variable-name="remark"
+                  cam-variable-type="String" class="form-control"></textarea>
+    </div>
+</form>
+

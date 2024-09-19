@@ -1,35 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0c3ix59" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.24.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0c3ix59" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.26.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
   <bpmn:collaboration id="Collaboration_1cqz0r2">
     <bpmn:participant id="absensi_workshop" name="Pengajuan Izin Di Kampus" processRef="absensi-workshop" />
   </bpmn:collaboration>
   <bpmn:process id="absensi-workshop" name="absensi" isExecutable="true" camunda:historyTimeToLive="180">
-    <bpmn:userTask id="Activity_1szp6f3" name="Review Pengajuan Izin Oleh Dosen">
+    <bpmn:userTask id="Activity_1szp6f3" name="Review Pengajuan Izin Oleh Dosen" camunda:formKey="embedded:/forms/PengajuanIzin/ReviewPengajuanIzinOlehDosen.html">
       <bpmn:incoming>Flow_1uqxes7</bpmn:incoming>
       <bpmn:outgoing>Flow_1i0qcq0</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1n2d2bt" default="Flow_0krgy4e">
+    <bpmn:exclusiveGateway id="Gateway_1n2d2bt" name="Apakah pengajuan izin disetujui?">
       <bpmn:incoming>Flow_1i0qcq0</bpmn:incoming>
       <bpmn:outgoing>Flow_0amj0xz</bpmn:outgoing>
       <bpmn:outgoing>Flow_0krgy4e</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:endEvent id="Event_0gsgqzs" name="Izin Diterima">
+      <bpmn:extensionElements>
+        <camunda:executionListener expression="${notifier.getTelegramService().getInstance().account(&#34;yudaraja&#34;).setText(&#34;Halo kapengajuan izin anda telah disetujui&#34;).send()}" event="start" />
+        <camunda:executionListener expression="${notifier.getEmailService().getInstance()                 .setFrom(&#34;yudaraja43@gmail.com&#34;)                 .setTo(&#34;yudaraja43@gmail.com&#34;)                 .setSubject(&#34;Yuda Raja Ardenta&#34;)                 .setText(&#34;Pengajuan Izin Anda Telah Disetujui&#34;)                 .send()}" event="start" />
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0amj0xz</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_08y0ybv" />
     </bpmn:endEvent>
     <bpmn:endEvent id="Event_0o6jq4i" name="Izin Ditolak">
+      <bpmn:extensionElements>
+        <camunda:executionListener expression="${notifier.getEmailService().getInstance()                 .setFrom(&#34;yudaraja43@gmail.com&#34;)                 .setTo(&#34;yudaraja43@gmail.com&#34;)                 .setSubject(&#34;Yuda Raja Ardenta&#34;)                 .setText(&#34;Pengajuan Izin Anda Telah Ditolak&#34;)                 .send()}" event="start" />
+        <camunda:executionListener expression="${notifier.getTelegramService().getInstance() .group(&#34;Notifier&#34;).setText(&#34;Pengajuan izin anda ditolak!&#34;).send()}" event="start" />
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_0krgy4e</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0dhc8hi" />
     </bpmn:endEvent>
-    <bpmn:startEvent id="StartEvent_1" name="Mahasiswa mengajukan Izin">
+    <bpmn:startEvent id="StartEvent_1" name="Mahasiswa mengajukan Izin" camunda:formKey="embedded:/forms/PengajuanIzin/MahasiswaMengajukanIzin.html">
       <bpmn:outgoing>Flow_1uqxes7</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_1uqxes7" sourceRef="StartEvent_1" targetRef="Activity_1szp6f3" />
     <bpmn:sequenceFlow id="Flow_1i0qcq0" sourceRef="Activity_1szp6f3" targetRef="Gateway_1n2d2bt" />
-    <bpmn:sequenceFlow id="Flow_0amj0xz" sourceRef="Gateway_1n2d2bt" targetRef="Event_0gsgqzs">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${true}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0amj0xz" name="setuju" sourceRef="Gateway_1n2d2bt" targetRef="Event_0gsgqzs">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ isApproved == 'Setuju' }</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0krgy4e" sourceRef="Gateway_1n2d2bt" targetRef="Event_0o6jq4i" />
+    <bpmn:sequenceFlow id="Flow_0krgy4e" name="tolak" sourceRef="Gateway_1n2d2bt" targetRef="Event_0o6jq4i">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ isApproved == 'Tolak' }</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1cqz0r2">
@@ -43,6 +53,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1n2d2bt_di" bpmnElement="Gateway_1n2d2bt" isMarkerVisible="true">
         <dc:Bounds x="515" y="195" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="504" y="150" width="72" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0gsgqzs_di" bpmnElement="Event_0gsgqzs">
         <dc:Bounds x="692" y="202" width="36" height="36" />
@@ -59,7 +72,7 @@
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="232" y="202" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="209" y="165.5" width="81" height="27" />
+          <dc:Bounds x="209" y="166" width="81" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1uqxes7_di" bpmnElement="Flow_1uqxes7">
@@ -73,10 +86,16 @@
       <bpmndi:BPMNEdge id="Flow_0amj0xz_di" bpmnElement="Flow_0amj0xz">
         <di:waypoint x="565" y="220" />
         <di:waypoint x="692" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="614" y="202" width="30" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0krgy4e_di" bpmnElement="Flow_0krgy4e">
         <di:waypoint x="540" y="245" />
         <di:waypoint x="540" y="352" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="543" y="296" width="24" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
